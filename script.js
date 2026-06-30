@@ -1,5 +1,8 @@
 const cursor = document.querySelector(".cursor-bubble");
 const audio = document.querySelector("#bg-audio");
+const audioConsent = document.querySelector(".audio-consent");
+const audioYes = document.querySelector(".audio-yes");
+const audioNo = document.querySelector(".audio-no");
 const lanes = [...document.querySelectorAll(".lane")];
 const navLinks = [...document.querySelectorAll(".lane-nav a")];
 const tiltCards = [...document.querySelectorAll("[data-tilt]")];
@@ -22,7 +25,7 @@ window.addEventListener("pointermove", (event) => {
   cursor.classList.add("is-visible");
 });
 
-document.querySelectorAll("a, .photo-stage").forEach((element) => {
+document.querySelectorAll("a, button, .photo-stage").forEach((element) => {
   element.addEventListener("pointerenter", () => cursor.classList.add("is-hovering"));
   element.addEventListener("pointerleave", () => cursor.classList.remove("is-hovering"));
 });
@@ -45,27 +48,52 @@ const observer = new IntersectionObserver(
 
 lanes.forEach((lane) => observer.observe(lane));
 
-const startAudio = async () => {
-  if (!audio || !audio.paused) return;
+let audioAllowed = false;
+
+const stopAudio = () => {
+  if (!audio) return;
+  audio.pause();
+};
+
+const playAudio = async () => {
+  if (!audio || !audioAllowed || document.hidden) return;
   try {
     audio.volume = 0.72;
     await audio.play();
-    window.removeEventListener("pointerdown", startAudio);
-    window.removeEventListener("touchstart", startAudio);
-    window.removeEventListener("wheel", startAudio);
-    window.removeEventListener("keydown", startAudio);
   } catch {
-    window.addEventListener("pointerdown", startAudio, { once: true });
-    window.addEventListener("touchstart", startAudio, { once: true });
-    window.addEventListener("wheel", startAudio, { once: true });
-    window.addEventListener("keydown", startAudio, { once: true });
+    stopAudio();
   }
 };
 
-window.addEventListener("load", startAudio);
-document.addEventListener("visibilitychange", () => {
-  if (!document.hidden) startAudio();
+const closeAudioConsent = () => {
+  audioConsent?.classList.add("is-hidden");
+};
+
+audioYes?.addEventListener("click", () => {
+  audioAllowed = true;
+  closeAudioConsent();
+  playAudio();
 });
+
+audioNo?.addEventListener("click", () => {
+  audioAllowed = false;
+  stopAudio();
+  closeAudioConsent();
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    stopAudio();
+    return;
+  }
+
+  playAudio();
+});
+
+window.addEventListener("pagehide", stopAudio);
+window.addEventListener("beforeunload", stopAudio);
+window.addEventListener("blur", stopAudio);
+window.addEventListener("focus", playAudio);
 
 tiltCards.forEach((card) => {
   card.addEventListener("pointermove", (event) => {

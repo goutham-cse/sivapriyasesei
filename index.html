@@ -24,7 +24,22 @@
       </div>
     </div>
 
-    <audio id="bg-audio" src="audio/Suzume.mp3" preload="auto" autoplay loop></audio>
+    <audio id="bg-audio" src="audio/Suzume.mp3" preload="auto" loop></audio>
+
+    <div class="audio-consent" role="dialog" aria-modal="true" aria-labelledby="audio-title">
+      <div class="audio-consent-panel">
+        <p class="jp">音楽</p>
+        <h2 id="audio-title">Play Suzume audio?</h2>
+        <p>Would you like Suzume to play softly while walking through this memory lane?</p>
+        <div class="audio-consent-actions">
+          <button class="journey-button audio-yes" type="button">
+            <span>Yes, play it</span>
+            <b aria-hidden="true">♪</b>
+          </button>
+          <button class="audio-no" type="button">No audio</button>
+        </div>
+      </div>
+    </div>
 
     <header class="topbar">
       <a class="brand" href="#lane-1" aria-label="Go to beginning">
